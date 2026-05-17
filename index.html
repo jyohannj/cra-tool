@@ -273,9 +273,9 @@
       <div class="nav-item" data-s="10" onclick="go(10)"><div class="step-num">11</div>Review &amp; Generate</div>
     </div>
     <div class="sidebar-footer">
-      <div class="api-label">API Key <span class="api-badge">Required</span></div>
-      <input type="password" class="api-input" id="apiKey" placeholder="sk-ant-...">
-      <p class="api-note">Used only in this session. Never stored or shared.</p>
+      <div class="api-note" style="font-size:12px;color:var(--text3);line-height:1.6;">
+        🔒 API calls are handled securely server-side. No key required.
+      </div>
     </div>
   </aside>
 
@@ -997,8 +997,6 @@ Please generate the full risk assessment now.`;
 }
 
 async function generate() {
-  const key = document.getElementById('apiKey').value.trim();
-  if (!key) { showErr('Please enter your Anthropic API key in the sidebar first.'); return; }
   const a = collect();
   if (!a.a1||!a.a3||!a.a4) { showErr('Missing required fields in Section A. Please go back and complete them.'); return; }
   if (!a.b1||!a.b4) { showErr('Missing required fields in Section B. Please go back and complete them.'); return; }
@@ -1009,14 +1007,9 @@ async function generate() {
   document.getElementById('outputWrap').classList.remove('show');
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/.netlify/functions/generate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 4096,
